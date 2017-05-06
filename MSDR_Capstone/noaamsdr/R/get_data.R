@@ -1,12 +1,16 @@
 #' Download the NOAA dataset
 #'
-#' Get the NOAA dataset in TXT file format
-#
+#' Get the NOAA dataset in TXT file format. If the destination directory
+#' don't exist, will be created.
+#'
+#' @param destdir character. Destination directory
+#'
 #' @return NULL. Impure function, called by its side effects
 #'
 #' @examples
 #' \dontrun{download_noaa()}
 #'
+#' @importFrom utils download.file
 #' @importFrom magrittr "%>%"
 #' @export
 eq_download_data = function (destdir) {
@@ -15,8 +19,7 @@ eq_download_data = function (destdir) {
     "https://www.ngdc.noaa.gov/nndc/struts/",
     "results?type_0=Exact&query_0=$ID&t=101650&s=13&d=189&dfn=signif.txt"
   )
-
-  destfile <- file.path(destdir, "NOAA.txt", fsep = "//")
+  destfile <- file.path(destdir, "NOAA.txt", fsep = "\\")
 
   # First time? Lets fix that
   if (!dir.exists(destdir)) {
@@ -57,14 +60,14 @@ eq_file_path <- function (destdir = NULL, update = FALSE) {
 
   ## destdir fallback
   destdir <- if (is.null(destdir)) {
-    user_data_dir("noaa", "msdr")
+    user_data_dir("NOAA", "Coursera")
   } else {
     destdir
   }
-  destfile <- file.path(destdir, "nooa_msdr.txt", fsep = "\\")
+  destfile <- file.path(destdir, "NOAA.txt", fsep = "\\")
 
   if (!file.exists(destfile) | update) {
-    noaa_download_data(destdir)
+    eq_download_data(destdir)
   }
 
   return(destfile)

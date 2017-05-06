@@ -9,10 +9,13 @@
 #'
 #' @return leaflet. A leaflet map
 #' @examples
+#' library(dplyr)
+#' library(lubridate)
+#'
 #' eq_get_data() %>%
 #'   eq_clean_data %>%
-#'   filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
-#'   eq_map(annot_col = "date")
+#'   filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
+#'   eq_map(annot_col = "DATE")
 #'
 #' @importFrom leaflet leaflet addTiles addCircleMarkers
 #' @importFrom magrittr "%>%" extract2
@@ -39,14 +42,18 @@ eq_map <- function (dataframe, annot_col= NULL) {
 #'
 #' @return character. A custom HTML template
 #' @examples
+#' library(lubridate)
+#' library(dplyr)
+#'
 #' eq_get_data() %>%
 #'   eq_clean_data %>%
-#'   filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
+#'   filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
 #'   mutate(popup_text = eq_create_label(.)) %>%
 #'   eq_map(annot_col = "popup_text")
 #'
+#' @importFrom stats na.omit
 #' @importFrom purrr by_row
-#' @importFrom dplyr select
+#' @importFrom dplyr select_
 #' @export
 eq_create_label <- function (dataframe) {
   dataframe %>%
@@ -66,10 +73,12 @@ eq_create_label <- function (dataframe) {
         sprintf("<b>Total deaths: </b>%s<br>", row$TOTAL_DEATHS),
         NA
       )
-      template = c(text_location, text_magnitude, text_deaths)
-      template %>% na.omit %>%  paste(collapse = "") %>% return
+      c(text_location, text_magnitude, text_deaths) %>%
+        na.omit() %>%
+        paste(collapse = "") %>%
+        return
     }, .to = "template") %>%
-    select(template) %>%
+    select_("template") %>%
     unlist %>%
     return
 }

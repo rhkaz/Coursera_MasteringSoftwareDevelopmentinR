@@ -4,15 +4,25 @@ Title: NOAA data analyses and visualizations
 Version: 0.1.0
 Author: Rashid Kazmi <rashidkazmi14@gmail.com>
 Maintainer: Rashid Kazmi <rashidkazmi14@gmail.com>
-Description: Coursera's Mastering Software Development in R specialisation 
-    capstone project. This package have useful functions to analyse and
-    visualise the data from the National Oceanic and Atmospheric Administration
-License: AGPL-3
+Description: Coursera's Mastering Software Development in R specialization 
+  capstone project. This package have useful functions to analyize and
+  visualise the data from the National Oceanic and Atmospheric Administration.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: rappdirs, magrittr, readr, purrr, ggplot2
+Imports: rappdirs,
+  tidyverse,
+  magrittr,
+  readr,
+  purrr,
+  ggplot2,
+  leaflet,
+  lubridate,
+  dplyr,
+  stringr,
+  tidyr
 Suggests: testthat,
-    knitr,
-    rmarkdown
+  knitr,
+  rmarkdown
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

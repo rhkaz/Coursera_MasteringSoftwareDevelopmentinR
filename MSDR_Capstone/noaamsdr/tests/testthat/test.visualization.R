@@ -16,7 +16,7 @@ test_that("geom_timeline_label exists and is a ggproto layer", {
 })
 
 test_that("eq_map returns a Leaflet", {
-  expect_is(eq_map(test_df, "date"), "leaflet")
+  expect_is(eq_map(test_df, "DATE"), "leaflet")
 })
 
 test_that("eq_create_label right labels", {

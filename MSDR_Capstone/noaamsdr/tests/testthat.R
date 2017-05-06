@@ -1,4 +1,4 @@
 library(testthat)
-library(NOAACoursera)
+library(noaamsdr)
 
-test_check("NOAACoursera")
+test_check("noaamsdr")

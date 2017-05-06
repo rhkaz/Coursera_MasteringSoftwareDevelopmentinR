@@ -1,8 +1,8 @@
 test_df <- eq_get_data() %>% eq_clean_data
 
 test_that("eq_clean_data cleans dates", {
-  expect_is(test_df$date, "Date")
-  expect_gte(min(lubridate::year(test_df$date)), 0)
+  expect_is(test_df$DATE, "Date")
+  expect_gte(min(lubridate::year(test_df$DATE)), 0)
 })
 
 test_that("eq_clean_data cleans coordinates", {

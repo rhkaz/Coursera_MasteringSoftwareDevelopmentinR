@@ -10,18 +10,22 @@ knitr::opts_chunk$set(
 )
 ```
 
-# NOAACoursera
+# noaamsdr
+
+[![Build Status](https://travis-ci.org/rhkaz/noaamsdr.svg?branch=master)](https://travis-ci.org/rhkaz/noaamsdr) 
+
+[Building details](https://travis-ci.org/rhkaz/noaamsdr)
 
 The goal of NOAACoursera is to create a package to manipulate and analyze the
 eartquakes [NOAA dataset](NOAA). This project corresponds to the capstone project of the 
-"Mastering Software Development in R" Coursera's specialization.
+"Mastering Software Development in R" Coursera's specialisation.
 
 ## Installation
 
 This is a basic example which shows you how to solve a common problem:
 
 ```{r, eval = FALSE}
-devtools::install_github("rhkaz/MSDR_Capstone/noaamsdr")
+devtools::install_github("rhkaz/noaamsdr")
 ```
 
 ## Usage
@@ -40,7 +44,7 @@ specify another path. Just write
 ```{r}
 library(tidyverse)
 library(lubridate)
-library(NOAACoursera)
+library(noaamsdr)
 eq_get_data() %>% glimpse
 ```
 
@@ -57,19 +61,19 @@ eq_get_data() %>% eq_clean_data %>% head
 ```
 
 
-### Visualize a timeline of the dataset
+### Visualise a timeline of the dataset
 It could be useful to visualize the earthquakes across time and other variables
 This is implemented in a couple of ggplot2's geoms: 
 
 ```{r}
-df <- eq_get_data() %>%
+df <- eq_get_data () %>%
   eq_clean_data %>%
   filter(!is.na(EQ_PRIMARY)) %>%
-  filter(year(date) > 2000) %>%
+  filter(year(DATE) > 2000) %>%
   filter(COUNTRY %in% c("CHINA", "USA"))
 ggplot(df) +
   aes(
-    x = date,
+    x = DATE,
     y = COUNTRY,
     size = EQ_PRIMARY,
     colour = DEATHS,
@@ -87,12 +91,12 @@ A leaflet wrapper is implemented to easily visualize the epicenters:
 ```{r, eval=F}
 eq_get_data() %>%
   eq_clean_data %>%
-  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
-  eq_map(annot_col = "date")
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
+  eq_map(annot_col = "DATE")
 
 eq_get_data() %>%
   eq_clean_data %>%
-  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
   mutate(popup_text = eq_create_label(.)) %>%
   eq_map(annot_col = "popup_text")
 ```

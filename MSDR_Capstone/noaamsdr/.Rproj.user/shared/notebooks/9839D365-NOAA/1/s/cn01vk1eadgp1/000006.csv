@@ -1,0 +1,4 @@
+"0","eq_get_data() %>%"
+"0","  eq_clean_data %>%"
+"0","  filter(COUNTRY == ""MEXICO"", year(DATE) >= 2000) %>%"
+"0","  eq_map(annot_col = ""DATE"")"

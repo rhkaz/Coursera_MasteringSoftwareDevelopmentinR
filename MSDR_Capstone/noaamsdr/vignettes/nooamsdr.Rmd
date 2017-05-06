@@ -1,0 +1,125 @@
+---
+title: "noaamsdr: Capstone project for Coursera"
+author: "Rashid Kazmi"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This is the final project of the Coursera's "Master Software Development in R"
+specialization. The objective of this package is provide wrapper functions to
+quickly analyse and visualize the National Oceanic and Atmospheric Administration
+dataset of significant earthquakes.
+
+Currently the package have the following capabilities:
+
+- Get the NOAA earthquakes dataset
+- Clean the data
+- Visualize the earthquakes timeline
+- Visualize the earthquakes in a map
+
+__NOTE:__ This package heavily relies on the Hadley Wickham's [tidyverse](tidyverse).
+
+### Get data
+This package will download and put the data in a persistent directory unless you
+specify another path. Just write 
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(noaamsdr)
+
+eq_get_data() %>% glimpse
+```
+
+and you will have the complete raw NOAA dataset in a data.frame object with all
+variables imported as character. The type handling is done in the cleaning process.
+This function depends on a the low level functions `eq_download_data` and `eq_file_path`.
+The `eq_download_data` download the NOAA earthquakes dataset in the specified
+directory. The `eq_file_path` returns a valid absolute path to the dataset, if
+the file to not exist in the passed directory, it downloads it. If the destdir is
+not specified, a persistent directory will be created. This is the default and
+prefered behaviur. The persistent directory is OS dependent. If you want to update
+the dataset pass the update = TRUE param.
+
+### Clean data
+By default, all variables are imported as character. This is because we want to
+make a more robust cleaning of the data. Again, just pass the dataframe to 
+the cleaning data and you will have a clean dataset with the types of each variable
+corrected and some new variables that compact information (e.g. DATE column).
+
+```{r}
+eq_get_data() %>% eq_clean_data %>% head
+```
+
+This function relies on several internal functions, namely:
+
+- numeric_convertible: Check if a data.frame column can be safely converted to
+numeric type.
+- eq_clean_wrong_parsed_numeric_vectors: Mutate all the columns that can be safely
+converted to numeric type.
+- eq_clean_dates: Unite YEAR, MONTH and DAY columns into a single "DATE" column.
+- eq_clean_coordinates: Remove invalid coordinate rows.
+- eq_clean_location: Removes the country from the LOCATION variable.
+
+All this functions are implemeted for interal usage.
+
+
+### Visualize a timeline of the dataset
+It could be useful to visualize the earthquakes across time and other variables
+This is implemented in a couple of ggplot2's geoms: `geom_timeline` and `geom_timeline_label`.
+The `geom_timeline` works out of the box with the required aes "x". The `geom_timeline_label`
+requires three aes: "x", "label" and "by". The "by" aesthetic is alog with the "n_max"
+param to show only top n_max labels in the by param.
+
+```{r}
+df <- eq_get_data() %>%
+  eq_clean_data %>%
+  filter(!is.na(EQ_PRIMARY)) %>%
+  filter(year(DATE) > 2000) %>%
+  filter(COUNTRY %in% c("CHINA", "USA"))
+
+ggplot(df) +
+  aes(
+    x = DATE,
+    y = COUNTRY,
+    size = EQ_PRIMARY,
+    colour = DEATHS,
+    label = LOCATION_NAME,
+    by = EQ_PRIMARY
+  ) +
+  geom_timeline() +
+  geom_timeline_label(n_max = 5) +
+  theme_timeline
+```
+
+The package also provides the `theme_timeline` wrapper for a clean visualization.
+
+### Visualize the earthquakes in a map
+A leaflet wrapper is implemented to easily visualize the epicenters:
+
+```{r, eval=F}
+eq_get_data() %>%
+  eq_clean_data %>%
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
+  eq_map(annot_col = "DATE")
+
+eq_get_data() %>%
+  eq_clean_data %>%
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
+  mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```
+
+
+## References
+
+- National Geophysical Data Center / World Data Service (NGDC/WDS): 
+  Significant Earthquake Database.
+  National Geophysical Data Center, NOAA. doi:10.7289/V5TD9V7K
+
+[NOAA]: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
+[tidyverse]: https://github.com/tidyverse/tidyverse

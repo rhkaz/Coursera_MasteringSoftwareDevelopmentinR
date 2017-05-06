@@ -1,6 +1,10 @@
 
-NOAACoursera
+noaamsdr
 ============
+
+[![Build Status](https://travis-ci.org/rhkaz/noaamsdr.svg?branch=master)](https://travis-ci.org/rhkaz/noaamsdr)
+
+[Building details](https://travis-ci.org/rhkaz/noaamsdr)
 
 The goal of NOAACoursera is to create a package to manipulate and analyze the eartquakes [NOAA dataset](NOAA). This project corresponds to the capstone project of the "Mastering Software Development in R" Coursera's specialization.
 
@@ -44,7 +48,6 @@ library(lubridate)
 #> The following object is masked from 'package:base':
 #> 
 #>     date
-
 library(noaamsdr)
 eq_get_data() %>% glimpse
 #> Observations: 5,934
@@ -107,7 +110,7 @@ By default, all variables are imported as character. This is because we want to 
 ``` r
 eq_get_data() %>% eq_clean_data %>% head
 #> # A tibble: 6 × 45
-#>     I_D FLAG_TSUNAMI       date  HOUR MINUTE SECOND FOCAL_DEPTH EQ_PRIMARY
+#>     I_D FLAG_TSUNAMI       DATE  HOUR MINUTE SECOND FOCAL_DEPTH EQ_PRIMARY
 #>   <dbl>        <chr>     <date> <dbl>  <dbl>  <dbl>       <dbl>      <dbl>
 #> 1    38         <NA> 0010-01-01    NA     NA     NA          18        7.1
 #> 2    39         <NA> 0011-01-01    NA     NA     NA          NA         NA
@@ -133,19 +136,19 @@ eq_get_data() %>% eq_clean_data %>% head
 #> #   TOTAL_HOUSES_DAMAGED_DESCRIPTION <dbl>
 ```
 
-### Visualise a timeline of the dataset
+### Visualize a timeline of the dataset
 
-It could be useful to visualie the earthquakes across time and other variables This is implemented in a couple of ggplot2's geoms:
+It could be useful to visualize the earthquakes across time and other variables This is implemented in a couple of ggplot2's geoms:
 
 ``` r
 df <- eq_get_data() %>%
   eq_clean_data %>%
   filter(!is.na(EQ_PRIMARY)) %>%
-  filter(year(date) > 2000) %>%
+  filter(year(DATE) > 2000) %>%
   filter(COUNTRY %in% c("CHINA", "USA"))
 ggplot(df) +
   aes(
-    x = date,
+    x = DATE,
     y = COUNTRY,
     size = EQ_PRIMARY,
     colour = DEATHS,
@@ -166,16 +169,17 @@ A leaflet wrapper is implemented to easily visualize the epicenters:
 ``` r
 eq_get_data() %>%
   eq_clean_data %>%
-  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
-  eq_map(annot_col = "date")
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
+  eq_map(annot_col = "DATE")
 
 eq_get_data() %>%
   eq_clean_data %>%
-  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
+  filter(COUNTRY == "MEXICO", year(DATE) >= 2000) %>%
   mutate(popup_text = eq_create_label(.)) %>%
   eq_map(annot_col = "popup_text")
 ```
 
 References
 ----------
-National Geophysical Data Center / World Data Service (NGDC/WDS): Significant Earthquake Database. National Geophysical Data Center, NOAA. <doi:10.7289/V5TD9V7K>
+
+-   National Geophysical Data Center / World Data Service (NGDC/WDS): Significant Earthquake Database. National Geophysical Data Center, NOAA. <doi:10.7289/V5TD9V7K>

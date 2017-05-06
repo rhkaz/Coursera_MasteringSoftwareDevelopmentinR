@@ -3,24 +3,24 @@
 #' You must provide the "by" aesthetics in order to filter the dataset with this
 #' variable.
 #'
-#' @inheritParams ggplot2::stat_identity
+#' @inheritParams ggplot2::geom_text
 #' @param n_max numeric. Positive integer. The maximum number of labels to draw
 #' by group
 #'
 #' @return layer. A ggplot2 layer that draws the labels for a geom_timeline layer
 #' @examples
+#' library(ggplot2)
+#' library(magrittr)
+#'
 #' eq_get_data() %>%
-#'   ggplot(aes) +
-#'  aes(
-#'    x = date,
-#'    y = COUNTRY,
-#'    size = EQ_PRIMARY,
-#'    colour = DEATHS,
-#'    label = LOCATION_NAME,
-#'    by = EQ_PRIMARY
-#'  ) +
-#'  geom_timeline() +
-#'  geom_timeline_label(3)
+#'   eq_clean_data() %>%
+#'   ggplot() +
+#'   aes(
+#'     x = DATE,
+#'     label = LOCATION_NAME,
+#'     by = EQ_PRIMARY
+#'   ) +
+#'   geom_timeline_label()
 #'
 #' @importFrom ggplot2 layer
 #' @export
@@ -54,7 +54,6 @@ geom_timeline_label <- function(
 #' @param panel_params list. Contains information about the scales in the current panel
 #' @param coord environment. Coordinate specification
 #' @param check_overlap boolean. Omit overlaped text.
-#' @param n_max numeric. Take the top n_max earthquakes by
 #'
 #' @return grobTree. The text labels and corresponding guide lines.
 #'

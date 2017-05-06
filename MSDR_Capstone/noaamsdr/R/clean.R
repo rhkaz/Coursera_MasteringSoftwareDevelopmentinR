@@ -7,10 +7,7 @@
 #'
 #' @return Boolean. TRUE if the vector can be safely converted to numeric.
 #'
-#' @examples
-#' c("1.5", "1.2", "2.0") %>% numeric_convertible # Returns TRUE
-#' c("a", "b", "c") %>% numeric_convertible # Returns FALSE
-#'
+#' @importFrom utils download.file
 #' @importFrom magrittr "%>%"
 #' @importFrom stringr str_detect str_trim
 numeric_convertible <- function (test_vector) {
@@ -49,7 +46,7 @@ eq_clean_data <- function (dataframe) {
 #' Magnitude variables are parsed as character vectors. This functions mutate
 #' them into numeric.
 #'
-#' @param dataframe
+#' @param dataframe A tibble. The raw NOAA dataset
 #'
 #' @return tibble. A data frame with magnitudes cleaned
 #' @examples
@@ -58,7 +55,7 @@ eq_clean_data <- function (dataframe) {
 #' }
 #'
 #' @importFrom magrittr "%>%"
-#' @importFrom dplyr mutate_if starts_with funs
+#' @importFrom dplyr mutate_if funs
 eq_clean_wrong_parsed_numeric_vectors <- function (dataframe) {
   dataframe %>%
     mutate_if(numeric_convertible, funs(as.numeric)) %>%
@@ -70,22 +67,27 @@ eq_clean_wrong_parsed_numeric_vectors <- function (dataframe) {
 #' The BCE dates where removed from the dataset because R cannot handle
 #' this dates
 #'
-#' @param dataframe. A tibble with the NOAA raw dataframe
+#' @param dataframe A tibble with the NOAA raw dataframe
+#'
 #' @return tibble. A data frame with the parsed dates and removed BCE dates
 #' @examples
 #' \dontrun{eq_get_data() %>% eq_clean_dates}
 #'
-#' @importFrom dplyr filter mutate
-#' @importFrom tidyr unite
+#' @importFrom dplyr filter_ mutate_
+#' @importFrom tidyr unite_
 #' @importFrom lubridate ymd
 eq_clean_dates <- function (dataframe) {
   dataframe %>%
-    filter(YEAR > 0) %>%
-    mutate(YEAR = sprintf("%+05d", as.integer(YEAR))) %>%
-    mutate(MONTH = ifelse(is.na(MONTH), "01", sprintf("%02d", as.integer(MONTH)))) %>%
-    mutate(DAY = ifelse(is.na(DAY), "01", sprintf("%02d", as.integer(DAY)))) %>%
-    unite(date, YEAR, MONTH, DAY) %>%
-    mutate(date = ymd(date)) %>%
+    filter_(~ YEAR > 0) %>%
+    mutate_(YEAR = ~ sprintf("%+05d", as.integer(YEAR))) %>%
+    mutate_(MONTH = ~ ifelse(
+      is.na(MONTH),
+      "01",
+      sprintf("%02d", as.integer(MONTH))
+    )) %>%
+    mutate_(DAY = ~ ifelse(is.na(DAY), "01", sprintf("%02d", as.integer(DAY)))) %>%
+    unite_("DATE", c("YEAR", "MONTH", "DAY")) %>%
+    mutate_(DATE = ~ ymd(DATE)) %>%
     return
 }
 
@@ -100,10 +102,10 @@ eq_clean_dates <- function (dataframe) {
 #' \dontrun{eq_get_data() %>% eq_clean_coordinates}
 #'
 #' @importFrom magrittr "%>%"
-#' @importFrom dplyr mutate filter
+#' @importFrom dplyr filter_
 eq_clean_coordinates <- function (dataframe) {
   dataframe %>%
-    filter(!is.na(LATITUDE), !is.na(LONGITUDE)) %>%
+    filter_(~ !is.na(LATITUDE), ~ !is.na(LONGITUDE)) %>%
     return
 }
 
@@ -117,12 +119,12 @@ eq_clean_coordinates <- function (dataframe) {
 #' @examples \dontrun{eq_get_data() %>% eq_clean_location()}
 #'
 #' @importFrom stringr str_replace str_to_title
-#' @importFrom dplyr mutate
 #' @importFrom magrittr "%>%"
+#' @importFrom dplyr mutate_
 eq_clean_location <- function (dataframe) {
   dataframe %>%
-    mutate(
-      LOCATION_NAME = LOCATION_NAME %>%
+    mutate_(
+      LOCATION_NAME = ~ LOCATION_NAME %>%
         str_replace(".*:\\s+(.*)", "\\1") %>%
         str_to_title
     ) %>%

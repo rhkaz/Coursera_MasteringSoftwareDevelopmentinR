@@ -1,28 +1,32 @@
 #' Draw a timeline
 #'
-#' @inheritParams ggplot2::stat_identity
+#' @inheritParams ggplot2::geom_point
+#' @param na.rm boolean. Not implemented
 #'
 #' @return layer. Called by its side effects adding a layer to a ggplot.
 #' @examples
+#' library(magrittr)
+#' library(ggplot2)
+#'
 #' eq_get_data() %>%
-#'   ggplot(aes) +
-#'  aes(
-#'    x = date,
-#'    y = COUNTRY,
-#'    size = EQ_PRIMARY,
-#'    colour = DEATHS,
-#'    label = LOCATION_NAME,
-#'    by = EQ_PRIMARY
-#'  ) +
-#'  geom_timeline()
+#'   eq_clean_data() %>%
+#'   dplyr::filter(!is.na(EQ_PRIMARY), !is.na(DEATHS)) %>%
+#'   ggplot() +
+#'   aes(
+#'     x = DATE,
+#'     size = EQ_PRIMARY,
+#'     colour = DEATHS
+#'   ) +
+#'   geom_timeline()
 #'
 #' @importFrom ggplot2 layer ggproto
 #' @export
-geom_timeline <- function(mapping = NULL, data = NULL, stat = "identity",
-                          position = "identity", na.rm = FALSE,
-                          show.legend = NA, inherit.aes = TRUE, ...) {
-  ggplot2::layer(
-    geom = GeomMyPoint, mapping = mapping,
+geom_timeline <- function(
+  mapping = NULL, data = NULL, stat = "identity", position = "identity",
+  na.rm = FALSE,  show.legend = NA, inherit.aes = TRUE, ...
+) {
+  layer(
+    geom = GeomTimeline, mapping = mapping,
     data = data, stat = stat, position = position,
     show.legend = show.legend, inherit.aes = inherit.aes,
     params = list(na.rm = na.rm, ...)
@@ -36,14 +40,16 @@ geom_timeline <- function(mapping = NULL, data = NULL, stat = "identity",
 #' @param data  Dataframe. A dataframe with at least x, y and group aesthetics
 #' @param panel_params List. Contains information about the scales in the current panel
 #' @param coord Environment. Coordinate specification
+#' @param na.rm boolean. Not implemented
 #'
 #' @return A grob to draw in the panel
 #'
 #' @references \url{https://cran.r-project.org/web/packages/ggplot2/vignettes/extending-ggplot2.html}
 #'
 #' @return grob points. A grob object with the desired layer
-#' @importFrom grid circleGrob polylineGrob gpar pointsGrob
-draw_timeline <- function(data, panel_params, coord, na.rm = FALSE) {
+#' @importFrom grid polylineGrob gpar pointsGrob nullGrob
+#' @importFrom ggplot2 .pt .stroke alpha
+draw_timeline <- function (data, panel_params, coord, na.rm = FALSE) {
   # if not enough points return a nullGrob
   if (nrow(data) == 0) return(nullGrob())
 
