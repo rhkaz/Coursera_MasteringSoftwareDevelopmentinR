@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "inst/doc\n",
+    "created" : 1494077209263.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2227212639",
+    "id" : "E5AAA0E9",
+    "lastKnownWriteTime" : 1494072148,
+    "last_content_update" : 1494072148,
+    "path" : "~/Documents/DataScientistLearningPath/GitHubProjects/Coursera_MasteringSoftwareDevelopmentinR/MSDR_Capstone/noaamsdr/.gitignore",
+    "project_path" : ".gitignore",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "gitignore"
+}
