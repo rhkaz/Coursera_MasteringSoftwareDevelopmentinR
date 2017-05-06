@@ -1,0 +1,107 @@
+---
+output: github_document
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# NOAACoursera
+
+The goal of NOAACoursera is to create a package to manipulate and analyze the
+eartquakes [NOAA dataset](NOAA). This project corresponds to the capstone project of the 
+"Mastering Software Development in R" Coursera's specialization.
+
+## Installation
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r, eval = FALSE}
+devtools::install_github("rhkaz/MSDR_Capstone/noaamsdr")
+```
+
+## Usage
+
+The package currently contains functions to:
+
+- Get the dataset
+- Clean the variables
+- Visualize a timeline of the earthquakes
+- Visualize a map with the epicenters
+
+### Get data
+This package will download and put the data in a persistent directory unless you
+specify another path. Just write 
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(NOAACoursera)
+eq_get_data() %>% glimpse
+```
+
+and you will have the complete raw NOAA dataset in a data.frame object.
+
+### Clean data
+By default, all variables are imported as character. This is because we want to
+make a more robust cleaning of the data. Again, just pass the dataframe to 
+the cleaning data and you will have a clean dataset with the types of each variable
+corrected and some new variables that compact information (e.g. date column).
+
+```{r}
+eq_get_data() %>% eq_clean_data %>% head
+```
+
+
+### Visualize a timeline of the dataset
+It could be useful to visualize the earthquakes across time and other variables
+This is implemented in a couple of ggplot2's geoms: 
+
+```{r}
+df <- eq_get_data() %>%
+  eq_clean_data %>%
+  filter(!is.na(EQ_PRIMARY)) %>%
+  filter(year(date) > 2000) %>%
+  filter(COUNTRY %in% c("CHINA", "USA"))
+ggplot(df) +
+  aes(
+    x = date,
+    y = COUNTRY,
+    size = EQ_PRIMARY,
+    colour = DEATHS,
+    label = LOCATION_NAME,
+    by = EQ_PRIMARY
+  ) +
+  geom_timeline() +
+  geom_timeline_label(n_max = 5) +
+  theme_timeline
+```
+
+### Visualize the earthquakes in a map
+A leaflet wrapper is implemented to easily visualize the epicenters:
+
+```{r, eval=F}
+eq_get_data() %>%
+  eq_clean_data %>%
+  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
+  eq_map(annot_col = "date")
+
+eq_get_data() %>%
+  eq_clean_data %>%
+  filter(COUNTRY == "MEXICO", year(date) >= 2000) %>%
+  mutate(popup_text = eq_create_label(.)) %>%
+  eq_map(annot_col = "popup_text")
+```
+
+
+## References
+
+- National Geophysical Data Center / World Data Service (NGDC/WDS): 
+  Significant Earthquake Database.
+  National Geophysical Data Center, NOAA. doi:10.7289/V5TD9V7K
+
+[NOAA]: https://www.ngdc.noaa.gov/nndc/struts/form?t=101650&s=1&d=1
